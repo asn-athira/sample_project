@@ -1,0 +1,68 @@
+<div class="center" style="border-width: 3px;">
+	<h2><b>Email sending using SENDGRID</b></h2>
+	<div class="container" style="border-color: black;">
+		<p> 	SendGrid is a cloud-based SMTP provider that allows you to send email without having to maintain email servers.SendGrid manages all of the technical details, from scaling the infrastructure to ISP outreach and reputation monitoring to whitelist services and real time analytics.</p>
+	 
+	    <p> * Step 1:
+	          
+	          Create an accout in https://app.sendgrid.com/<br>
+	      
+	     * Step 2:
+	        
+	          Signin to the created account.<br>
+	      
+	     * Step 3:
+	        
+	          Create an API key – 
+	   		settings -> create Api -> Add   : Key Name, 
+	                                      		 Select : Restricted Address , 
+	                                 		            Allow: API keys, Alerts, Email Activity, Mail send, Mail 						settings,  Trakings<br>
+	     * Step 4:
+	            
+	           Create a new rails project ->
+	           Add gem ‘sendgrid-ruby’-> 
+	           bundle install.<br>
+	      
+	     * Step 5:
+	        
+	            Create model send-mail.rb 
+	              $ touch send-mail.rb <br>
+	            Add the below code in send-mail.rb<br>
+	         
+	          //send-mail.rb
+	                    require 'sendgrid-ruby'<br>
+	                    include SendGrid<br>
+	                   from = SendGrid::Email.new(email: 'abc@gmail.ae')<br>
+	                   to = SendGrid::Email.new(email: 'asnathira@gmail.com')<br>
+	                   subject = 'Sending with Twilio SendGrid is Fun'<br>
+	                   content = SendGrid::Content.new(type: 'text/plain', value: 'and easy to do anywhere,                      	       even with Ruby')<br>
+	                  mail = SendGrid::Mail.new(from, subject, to, content)<br>
+	                  sg = SendGrid::API.new(api_key:          							  		'SG.3pELIR4wR8Si756YIS05Mw.2UudPl9SzfSwS8rJi4yMod1HPvCP-				4_HjRRVm1anMnQ')<br>
+	                 response = sg.client.mail._('send').post(request_body: mail.to_json)<br>
+	                 puts response.status_code<br>
+	                 puts response.body<br>
+	                 puts response.parsed_body<br>
+	                 puts response.headers<br>
+
+	     * Step 6 :
+	         
+	         Verifications- 2 types
+	                1. Sender Authentication
+	                      go to accout-> settings -> sender authentication -> create new sender -> fill up     	    the form -> verify the sender’s email.
+	                2. Two factor authentication
+	                      go to account -> settings ->two factor authentication .<br>
+	      
+	     * Step 7:
+	           
+	         Execute the file
+	                $ bundle exec ruby send-email.rb<br>
+	      
+	      Reference : 
+	      
+	    • https://www.youtube.com/watch?v=VQ2dGcfLIew<br>
+	    • https://github.com/sendgrid/sendgrid-php/issues/181<br>
+	    • https://github.com/sendgrid/sendgrid-ruby<br>
+	    • https://sendgrid.com/docs/for-developers/sending-email/rubyonrails/<br><br>
+	  </p>
+	</div>
+</div>

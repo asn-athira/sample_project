@@ -1,0 +1,35 @@
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_project_development
+  username: root
+ #password: 
+  port: 3306
+  host: localhost
+
+test:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_project_test
+  username: root
+  # password: 
+  port: 3306
+  host: localhost
+
+staging:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_project_staging
+  username: root
+  # password: 
+  port: 3306
+  host: localhost
+
+production:
+  adapter: mysql2
+  encoding: utf8
+  database: sample_project_production
+  username: root
+  # password: 
+  port: 3306
+  host: localhost
