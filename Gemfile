@@ -22,6 +22,7 @@ gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
+gem 'sendgrid-ruby'
 
 #gem 'bootstrap', '~> 4.5.0'
 #gem 'jquery-rails'
@@ -44,6 +45,7 @@ gem 'bootsnap', '>= 1.1.0', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'pry', '~> 0.12.2'
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 end
 

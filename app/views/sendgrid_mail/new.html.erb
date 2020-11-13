@@ -1,20 +1,27 @@
-<div class="box">
-  <div class="center-align">
-    <div class="card text-center">
-      <div class="card-header">
-        Type Your Email Id Here..
-      </div>
-      <div class="card-body">
-        <form>
-          <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+<div class="layout">
+  <div class="card">
+    <div class="card-header">
+      Type your Email Id
+    </div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <%= form_for @email, :url => { :action => "create" } do |f| %>
+          <div class="form-row">
+            <div class="col">
+              <%= f.text_field :email, :class => "form-control", :placeholder => "Email" %>
+            </div>
+            <div class="col">
+              <%= f.submit "Send Mail", :class => "btn btn-primary"  %>
+            </div>
           </div>
-          
-          <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
-       </div>
+        <% end %>
+        <p id="notice" class="p-class"><%= notice %></p>
+
+      </blockquote>
+    </div>
+    <div class="card-footer">
+      <%= link_to "Back", sendgrid_mail_index_path %>
     </div>
   </div>
 </div>
+

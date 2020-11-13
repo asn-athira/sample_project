@@ -1,3 +1,5 @@
+<%= link_to "Back", sendgrid_mail_index_path %>
+
 <div class="center" style="border-width: 3px;">
 	<h2><b>Email sending using SENDGRID</b></h2>
 	<div class="container" style="border-color: black;">
@@ -17,46 +19,77 @@
 	   		settings -> create Api -> Add   : Key Name, 
 	                                      		 Select : Restricted Address , 
 	                                 		            Allow: API keys, Alerts, Email Activity, Mail send, Mail 						settings,  Trakings<br>
+	                                 		            Verifications- 2 types
+	                1. Sender Authentication
+	                      go to accout-> settings -> sender authentication -> create new sender -> fill up     	    the form -> verify the sender’s email.
+	                2. Domain authentication
+	                      go to account -> settings ->Domain authentication .<br>
+	      
 	     * Step 4:
 	            
-	           Create a new rails project ->
 	           Add gem ‘sendgrid-ruby’-> 
 	           bundle install.<br>
 	      
 	     * Step 5:
 	        
-	            Create model send-mail.rb 
-	              $ touch send-mail.rb <br>
-	            Add the below code in send-mail.rb<br>
-	         
-	          //send-mail.rb
-	                    require 'sendgrid-ruby'<br>
-	                    include SendGrid<br>
-	                   from = SendGrid::Email.new(email: 'abc@gmail.ae')<br>
-	                   to = SendGrid::Email.new(email: 'asnathira@gmail.com')<br>
-	                   subject = 'Sending with Twilio SendGrid is Fun'<br>
-	                   content = SendGrid::Content.new(type: 'text/plain', value: 'and easy to do anywhere,                      	       even with Ruby')<br>
-	                  mail = SendGrid::Mail.new(from, subject, to, content)<br>
-	                  sg = SendGrid::API.new(api_key:          							  		'SG.3pELIR4wR8Si756YIS05Mw.2UudPl9SzfSwS8rJi4yMod1HPvCP-				4_HjRRVm1anMnQ')<br>
-	                 response = sg.client.mail._('send').post(request_body: mail.to_json)<br>
-	                 puts response.status_code<br>
-	                 puts response.body<br>
-	                 puts response.parsed_body<br>
-	                 puts response.headers<br>
+				   Generate Mailer  user_mailer_notification.rb
+			     // user_mailer_notification.rb
+			        class UserMailerNotification < ApplicationMailer
+				def send_welcome_email(user)
+			   		@client_user = user
+			   		mail( :to => @client_user.email,
+			    			:subject => 'Thanks for signing up for our amazing ITS app' )
+			 	 end
+			 	 def send_forgot_password(user)
+			    		 @client_user = user
+			   		mail( :to => @client_user.email,
+			    			:subject => 'ITS-Reset Your Password' )
+			 	 end
+			    end
 
 	     * Step 6 :
+	         Create template view in app/views/ send_welcome_email.html.erb
+		    // send_welcome_email.html.erb
+		       
+			<h6>Thanks for signing up !</h6>
+			<p>Thanks for joining and have a great day! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<hr>
+			<p>© ITS. 1801 California St., Suite 500, Denver, CO 80202 USA</p>
+		
+
 	         
-	         Verifications- 2 types
-	                1. Sender Authentication
-	                      go to accout-> settings -> sender authentication -> create new sender -> fill up     	    the form -> verify the sender’s email.
-	                2. Two factor authentication
-	                      go to account -> settings ->two factor authentication .<br>
-	      
 	     * Step 7:
 	           
-	         Execute the file
-	                $ bundle exec ruby send-email.rb<br>
-	      
+	         Call the method after sign up from user model
+			   //user.rb
+			     
+			  after_create :send_welcome_email
+			 
+			  # ----------------
+			  # Instance Methods
+			  # ----------------
+			  def send_welcome_email
+			    UserMailerNotification.send_welcome_email(self).deliver
+			  end<br>
+
+		* Step 8 :
+			  Configure Environment
+				   In config/environment.rbs pecify your ActionMailer settings to point to SendGrid's servers.
+				//   environment.rb
+				  ActionMailer::Base.smtp_settings = {
+				  :user_name => 'apikey',
+				  #:password => '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',
+				  :password => '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',
+				  #:password => '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',
+				  #:domain => '',
+				  :address => 'smtp.sendgrid.net',
+				  :port => 587,
+				  :authentication => :plain,
+				  :enable_starttls_auto => true
+				}
+				(authnticated mail in sendgrid should same in mailer)<br>
+
+
 	      Reference : 
 	      
 	    • https://www.youtube.com/watch?v=VQ2dGcfLIew<br>
