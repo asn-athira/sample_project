@@ -13,7 +13,7 @@ class SendgridMailController < ApplicationController
 	
 	def create
 		get_email
-	#	send_welcome_email
+		send_welcome_email
 		flash[:notice] = 'Email sent successfully ! Please Check Your Email Account '
 		redirect_to new_sendgrid_mail_path
   end
