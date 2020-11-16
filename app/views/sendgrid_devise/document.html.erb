@@ -1,0 +1,42 @@
+ <%= link_to "Back", sendgrid_mail_index_path %>
+
+<div class="center" style="border-width: 3px;">
+  <h2><b> Devise Mail Senting Using Send_Grid</b></h2>
+  <div class="container" style="border-color: black;">
+
+<p> 1.   Install devise gem<br><br>
+
+    Add gem 'devise' to your gemfile<br>
+
+    • Run bundle install Command<br>
+    • Run rails g devise:install command<br>
+    • Run rails g devise User command<br>
+    • Run rails active_storage:install command<br>
+    • Run rails db:migrate command (Run rails db:create command first if db is switched from sqlite 3 to any other database)<br><br>
+
+
+2. setup sendgrid values on config/ environment.rb<br><br>
+       // environment.rb<br>
+         ActionMailer::Base.smtp_settings = {<br>
+            :user_name => Rails.application.credentials.production[:sendgrid][:username],                                                           //    apikey_name<br>
+            :password => Rails.application.credentials.production[:sendgrid][:api_key],
+											                                          //   api_key<br>
+            :address => 'smtp.sendgrid.net',<br>
+            :port => 587,<br>
+            :authentication => :plain,<br>
+            :enable_starttls_auto => true<br>
+           }
+
+3. Change the email from address in config/initializers/devise.rb<br><br>
+
+	config.mailer_sender = 'san.san@yopmail.com'  // sender mail<br>
+            config.reset_password_within = 24.hours         //  token expiry hr<br><br>
+
+4. set the view in devise/password/edit.html.erb<br><br>
+
+5. set the view of mailer devise/mailer/reset_password_instruction.html.erb<br><br>
+
+Reference : https://blog.mailtrap.io/devise-reset-password/<br>
+https://stackoverflow.com/questions/6019083/setting-up-devise-sendgrid-on-heroku<br><br>
+  </div>
+</div>
