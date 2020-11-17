@@ -1,11 +1,11 @@
- <%= link_to "Back", sendgrid_mail_index_path %>
+ <%= link_to "Back", sendgrid_devise_index_path %>
 
 <div class="center" style="border-width: 3px;">
   <h2><b> Devise Mail Senting Using Send_Grid</b></h2>
   <div class="container" style="border-color: black;">
 
-<p> 1.   Install devise gem<br><br>
-
+<p> 1.   Install devise gem
+  <div class="container">
     Add gem 'devise' to your gemfile<br>
 
     • Run bundle install Command<br>
@@ -13,9 +13,12 @@
     • Run rails g devise User command<br>
     • Run rails active_storage:install command<br>
     • Run rails db:migrate command (Run rails db:create command first if db is switched from sqlite 3 to any other database)<br><br>
+  </div>
 
 
-2. setup sendgrid values on config/ environment.rb<br><br>
+2. setup sendgrid values on config/ environment.rb
+  <div class="container">
+
        // environment.rb<br>
          ActionMailer::Base.smtp_settings = {<br>
             :user_name => Rails.application.credentials.production[:sendgrid][:username],                                                           //    apikey_name<br>
@@ -25,16 +28,23 @@
             :port => 587,<br>
             :authentication => :plain,<br>
             :enable_starttls_auto => true<br>
-           }
+           }<br><br>
+  </div>
 
-3. Change the email from address in config/initializers/devise.rb<br><br>
+3. Change the email from address in config/initializers/devise.rb
+  <div class="container">
+    config.mailer_sender = 'san.san@yopmail.com'  // sender mail<br>
+    config.reset_password_within = 24.hours         //  token expiry ho<br><br>
+  </div>
+4.  Set the host in config/environments/development.rbdevelopment.rb
+  <div class="container">
+    config.action_mailer.default_url_options = { :host => "san.san@yopmail.com" }<br><br>
+  </div>
 
-	config.mailer_sender = 'san.san@yopmail.com'  // sender mail<br>
-            config.reset_password_within = 24.hours         //  token expiry hr<br><br>
 
-4. set the view in devise/password/edit.html.erb<br><br>
+5. set the view in devise/password/edit.html.erb<br><br>
 
-5. set the view of mailer devise/mailer/reset_password_instruction.html.erb<br><br>
+6. set the view of mailer devise/mailer/reset_password_instruction.html.erb<br><br>
 
 Reference : https://blog.mailtrap.io/devise-reset-password/<br>
 https://stackoverflow.com/questions/6019083/setting-up-devise-sendgrid-on-heroku<br><br>
