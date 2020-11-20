@@ -12,7 +12,8 @@
     • Run rails g devise:install command<br>
     • Run rails g devise User command<br>
     • Run rails active_storage:install command<br>
-    • Run rails db:migrate command (Run rails db:create command first if db is switched from sqlite 3 to any other database)<br><br>
+    • Run rails db:migrate command (Run rails db:create command first if db is switched from sqlite 3 to any other database)<br>
+    • rails g devise:views <br><br>
   </div>
 
 
@@ -48,5 +49,292 @@
 
 Reference : https://blog.mailtrap.io/devise-reset-password/<br>
 https://stackoverflow.com/questions/6019083/setting-up-devise-sendgrid-on-heroku<br><br>
+  </div><br>
+
+
+  <h2><b> Devise Social Media Login</b></h2> 
+  <h4>Google Sign Up Using Devise</h4>
+  <div class="container" style="border-color: black;">
+
+<p>
+    <h6>1. Create a Google App</h6>
+      <div class="container">
+
+        •     Go to  https://console.developers.google.com/<br>
+        •     Create a new project  <br>
+        •     Open the created one.<br>
+        •     Set the Oauth consent sreen<br>
+        •        Application type: Public<br>
+        •          Application Name: demoits<br>
+        •          Authorised domain : itslabel.me<br>
+        •         Application home page link:  http://demo.itslabel.me/user/login<br>
+          
+         •  Create credentials<br>
+           Under credential create OAuth Client Id  -> Select web application -> Set URL   <br>
+          client name : Client_1<br>
+         Authorised javascript url :http://localhost:3000, http://demo.itslabel.me, http://app.itslabel.me <br>
+         Authorised redirect url :    http://localhost:3000/user/auth/google_oauth2/callback  <br>//development       http://demo.itslabel.me /user/auth/google_oauth2/callback, // <br>staging       http://app.itslabel.me/user/auth/google_oauth2/callback// production<br>
+          ( Add urls where you can implement social media login)<br>
+
+        Save and  created Client Id and client secret name and save it <br>
+      </div>
+
+
+  2.   Install gem Files
+  <div class="container">
+    gem 'omniauth'<br>
+    gem 'omniauth-google-oauth2'<br>
+  </div>
+
+  3. Created Google icon and set the link as<br>
+      href="/user/auth/google_oauth2"<br>
+        <br>
+  4.  Add middleware in config/initializers/devise.rb
+    <div class="container">
+
+       // devise.rb<br>
+        require 'omniauth-google-oauth2'<br>
+        
+        config.omniauth :google_oauth2, google_client_id, google_secret_key, callback_url: "#{domain}/user/auth/google_oauth2/callback"<br>
+
+    </div>
+
+
+5.  Add Routes
+  <div class="container">
+    devise_for :users, path: "user", path_names: { sign_in: 'login', sign_out: 'logout', sign_up: 'register', edit: 'settings' },:controllers => { :omniauth_callbacks => "omniauth_callbacks" } do<br>
+         get '/user/auth/:provider' => 'omniauth_callbacks#passthru'<br>
+      end <br>
+   </div>
+
+
+6. Create model as user.rb and create a method for google_oauth2(updated the usetr model with uid and provider)
+  <div class="container"><br>
+    class User < ApplicationRecord<br>
+<br>
+      devise :omniauthable, :database_authenticatable, :registerable,<br>
+             :recoverable, :rememberable, :validatable<br>
+
+      def self.find_for_google_oauth2(access_token, signed_in_resource=nil)<br>
+        data = access_token.info<br>
+        user = User.where(:provider => access_token.provider, :uid => access_token.uid ).first<br>
+        if user<br>
+          return user<br>
+        else<br>
+          registered_user = tUser.where(:email => access_token.info.email).first<br>
+          if registered_user<br>
+            return registered_user<br>
+          else<br>
+            fullname = data['name'].split(' ')<br>
+            first_name, last_name = fullname[0], fullname[1]<br>
+            user = User.create(<br>
+              provider:access_token.provider,<br>
+              email: data["email"],<br>
+              uid: access_token.uid ,<br>
+              encrypted_password: Devise.friendly_token[0,20],<br>
+            )<br>
+          end<br>
+        end<br>
+      end<br>
+
+      def self.create_or_fetch_google_user(access_token, signed_in_resource=nil)<br>
+        data = access_token.info<br>
+        user = User.where(:provider => access_token.provider, :uid => access_token.uid ).first<br>
+        if user<br>
+          return user<br>
+        else<br>
+          registered_user = User.where(:email => access_token.info.email).first<br>
+          if registered_user<br>
+            return registered_user<br>
+          else<br>
+            fullname = data['name'].split(' ')<br>
+            first_name, last_name = fullname[0], fullname[1]<br>
+            user = User.create(email: data["email"],<br>
+              provider:access_token.provider,<br>
+              uid: access_token.uid ,<br>
+              password: Devise.friendly_token[0,20],<br>
+            )<br>
+          end<br>
+        end<br>
+      end<br>
+
+    end<br>
+
+  </div>
+
+7. Create controller for  google_oauth2 as omniauth_callbacks_controller.rb <br><br>
+  <div class="container">
+      class OmniauthCallbacksController < Devise::OmniauthCallbacksController<br>
+
+      def google_oauth2<br>
+          @user = User.create_or_fetch_google_user(request.env["omniauth.auth"])<br>
+          if @user.persisted?<br>
+            flash[:notice] = I18n.t "devise.omniauth_callbacks.success", :kind => "Google"<br>
+            sign_in_and_redirect @user, :event => :authentication<br>
+          else<br>
+            session["devise.google_data"] = request.env["omniauth.auth"]<br>
+            redirect_to new_user_registration_url<br>
+          end<br>
+        end<br>
+        <br>
+        def failure<br>
+          redirect_to root_path<br>
+        end<br>
+      end<br>
+
+  </div>
+ <h4>Facebook Sign Up Using Devise</h4>
+  <div class="container" style="border-color: black;">
+
+<p>
+    <h6>1. Create a Facebook App</h6>
+      <div class="container">
+
+        go to https://developers.facebook.com
+        Click the Register button at the top-right of the page.
+        Accept the Facebook developer agreement(in the modal dialog) by turning the switch to YES and clicking the Register button.
+        Click the Create App ID button that shows up in the same modal dialog.
+        Once your application is created, you will be taken to the application settings page.
+
+        Choose Settings > Basic from the left menu.
+        Enter localhost in the App Domains field.
+        Click the Add Platform button at the bottom of the page.
+
+        Choose Website as the platform.
+        Enter http://localhost:3000 in the Site URL field.
+        Click the Save Changes button at the bottom of the page.
+
+        Choose Dashboard from the left menu.
+        Note down the App ID, and App Secret shown on the page as they will be needed later.
+          <br>
+      </div>
+
+
+  2.   Install gem Files
+  <div class="container">
+    gem 'omniauth-facebook'<br>
+  </div>
+
+  3.Created fb icon and set the link as<br>
+          href="/user/auth/facebook"
+              <br>
+
+
+  4.  Add middleware in config/initializers/devise.rb
+    <div class="container">
+
+       // devise.rb<br>
+        require 'omniauth-google-oauth2'<br>
+        
+          config.omniauth :facebook, fb_app_id, fb_secret_key, callback_url: "#{domain}/user/auth/facebook/callback"<br>
+
+    </div>
+
+
+5.  Add Routes
+  <div class="container">
+    devise_for :users, path: "user", path_names: { sign_in: 'login', sign_out: 'logout', sign_up: 'register', edit: 'settings' },:controllers => { :omniauth_callbacks => "omniauth_callbacks" } do<br>
+         get '/user/auth/:provider' => 'omniauth_callbacks#passthru'<br>
+      end <br>
+   </div>
+
+
+6. Create model as user.rb and create a method for facebook(updated the usetr model with uid and provider)
+  <div class="container"><br>
+    class User < ApplicationRecord<br>
+      devise :omniauthable, :database_authenticatable, :registerable,<br>
+             :recoverable, :rememberable, :validatable<br>
+        def self.new_with_session(params, session)<br>
+          super.tap do |user|<br>
+            if data = session["devise.facebook_data"] && session["devise.facebook_data"]["extra"]["raw_info"]<br>
+              user.email = data["email"] if user.email.blank?<br>
+            end<br>
+          end<br>
+        end<br>
+
+        def self.create_or_fetch_fb_user(auth)<br>
+            email = auth.info.email<br>
+            names = auth.info.name.split(' ')<br>
+            if names.size > 1<br>
+              first_name = names[0..-2].join(' ')<br>
+              last_name = names[-2]<br>
+            else<br>
+              first_name = auth.info.name<br>
+              last_name = ''<br>
+            end<br>
+
+            # Check if the user with this email id has previously registered using our registered form or with google<br>
+            # If so, just convert the user to facebook user<br>
+            user = User.where(email: email).first<br>
+            if user<br>
+              case user.provider<br>
+              when nil<br>
+                user.provider = auth.provider<br>
+                user.uid = auth.uid<br>
+              when "facebook"<br>
+                if user.uid == auth.uid<br>
+                  user.email = email<br>
+                else<br>
+                  user.uid = auth.uid<br>
+                end<br>
+              when "google"<br>
+                user.provider = auth.provider<br>
+                user.uid = auth.uid<br>
+              end<br>
+            else<br>
+              # The user doesn't exist. <br>
+              # So create a new user with provider = "facebook" and with fb uid<br>
+              user = User.new<br>
+              user.email = email<br>
+              user.encrypted_password = Devise.friendly_token[0,20]<br>
+              user.provider = auth.provider<br>
+              user.uid = auth.uid<br>
+            end<br>
+
+            # Setting Defaults<br>
+            # Saving the User (This will update the user first name and last name in case if the user has changed it in facebook)<br>
+            user.save<br>
+            # user = ClientUser.where(provider: auth.provider, uid: auth.uid).first_or_create do |user|<br>
+            #   user.email = email<br>
+            #   user.password = Devise.friendly_token[0,20] unless user.password<br>
+            #   user.first_name = first_name<br>
+            #   user.last_name = last_name<br>
+            #   user.mobile_number = '' unless user.mobile_number<br>
+            #   user.organisation = ''<br>
+            #   user.country = ''<br>
+            #   # TODO - Copy Image to Avatar Later<br>
+            #   #user.image = auth.info.image # assuming the user model has an image<br>
+            # end<br>
+            return user<br>
+          end<br>
+    end<br>
+
+  </div>
+
+7. Create controller for  facebook as omniauth_callbacks_controller.rb <br><br>
+  <div class="container">
+      class OmniauthCallbacksController < Devise::OmniauthCallbacksController<br>
+
+        def facebook<br>
+          @user = User.create_or_fetch_fb_user(request.env["omniauth.auth"])<br>
+          if @user.persisted?<br>
+            sign_in_and_redirect @user, :event => :authentication<br>
+            set_flash_message(:notice, :success, :kind => "Facebook") if is_navigational_format?<br>
+          else<br>
+            session["devise.facebook_data"] = request.env["omniauth.auth"]<br>
+            redirect_to new_user_registration_url<br>
+          end<br>
+        end<br>
+      end<br>
+
+  </div><br><br>
+
+
+Reference :<br>
+https://medium.com/@amoschoo/google-oauth-for-ruby-on-rails-129ce7196f35<br>
+https://scotch.io/tutorials/integrating-social-login-in-a-ruby-on-rails-application<br>
+https://medium.com/@_benrudolph/end-to-end-devise-omniauth-google-api-rails-7f432b38ed75<br>
+https://www.crondose.com/2016/12/guide-integrating-omniauth-rails-5-facebook-login-feature/<br>
+
   </div>
 </div>

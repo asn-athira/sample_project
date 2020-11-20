@@ -6,7 +6,6 @@ class SendgridDeviseController < ApplicationController
 	end
 
 	def home
-		
 	end
 
 end
