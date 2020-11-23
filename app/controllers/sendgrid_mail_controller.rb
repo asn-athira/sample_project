@@ -2,6 +2,7 @@ class SendgridMailController < ApplicationController
   layout 'sendgrid_mail'
 
 	def index
+  	@page_title = "Sendgrid Mailer"	
 	end
 
 	def document
